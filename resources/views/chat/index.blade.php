@@ -17,7 +17,7 @@
                     </svg>
                 </div>
                 <div class="bg-gray-100 rounded-lg px-4 py-2 max-w-2xl">
-                    <p class="text-sm text-gray-800">Hola! Preguntame sobre nuestros productos. Puedo ayudarte a encontrar lo que buscas.</p>
+                    <p class="text-sm text-gray-800">¡Hola! Pregúntame sobre nuestros productos. Puedo ayudarte a encontrar lo que buscas.</p>
                 </div>
             </div>
         </div>
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messagesContainer = document.getElementById('chat-messages');
     const sendBtn = document.getElementById('send-btn');
 
-    const API_URL = '{{ url("/api/search-products") }}';
+    const API_URL = '{{ route("api.search") }}';
 
     const suggestions = [
         'laptop gamer',
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </svg>
             </div>
             <div class="bg-gray-100 rounded-lg px-4 py-2 max-w-2xl">
-                <p class="text-sm text-gray-800 whitespace-pre-wrap">${escapeHtml(text)}</p>
+                <p class="text-sm text-gray-800 whitespace-pre-line">${escapeHtml(text)}</p>
             </div>
         `;
 
@@ -111,18 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addProductCards(products) {
-        if (!products || products.length === 0) return;
+        if (!products || !Array.isArray(products) || products.length === 0) return;
 
         const wrapper = document.createElement('div');
         wrapper.className = 'ml-11 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3';
 
         products.forEach(product => {
             const card = document.createElement('div');
-            card.className = 'border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow';
+            card.className = 'border border-gray-200 rounded-lg p-3 bg-white hover:shadow-md transition-shadow';
             card.innerHTML = `
-                <div class="font-medium text-sm text-gray-900">${escapeHtml(product.name)}</div>
-                <div class="text-emerald-600 font-semibold text-sm mt-1">$${Number(product.price).toFixed(2)}</div>
-                <div class="text-xs text-gray-500 mt-1">Stock: ${product.stock}</div>
+                <div class="font-medium text-sm text-gray-900">${escapeHtml(product.name || 'Producto')}</div>
+                <div class="text-emerald-600 font-semibold text-sm mt-1">$${Number(product.price || 0).toLocaleString()}</div>
+                <div class="text-xs text-gray-500 mt-1">Stock: ${product.stock ?? 'N/A'}</div>
                 ${product.description ? `<div class="text-xs text-gray-400 mt-1 line-clamp-2">${escapeHtml(product.description)}</div>` : ''}
             `;
             wrapper.appendChild(card);
@@ -164,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
@@ -182,12 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
         addLoadingIndicator();
 
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify({ query }),
             });
@@ -195,15 +198,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             removeLoadingIndicator();
 
-            if (data.success && data.data) {
-                addMessage(data.data.answer, false);
-                addProductCards(data.data.products);
+            console.log('Respuesta de la API:', data);
+
+            // Obtener datos independientemente de si la API devuelve { answer: ... } o { data: { answer: ... } }
+            const payload = data.data || data;
+            const answer = payload.answer || data.answer;
+            const products = payload.products || data.products;
+
+            if (answer) {
+                addMessage(answer, false);
+                if (products) {
+                    addProductCards(products);
+                }
             } else {
-                addMessage('Lo siento, hubo un error al procesar tu pregunta. Intenta de nuevo.', false);
+                addMessage('Lo siento, no pude procesar la respuesta adecuadamente.', false);
             }
         } catch (error) {
+            console.error('Error enviando petición:', error);
             removeLoadingIndicator();
-            addMessage('No pude conectar con el servidor. Verifica tu conexion e intenta de nuevo.', false);
+            addMessage('No pude conectar con el servidor. Verifica tu conexión e intenta de nuevo.', false);
         } finally {
             sendBtn.disabled = false;
             input.disabled = false;
