@@ -17,3 +17,6 @@ Route::resource('productos', ProductoController::class);
 Route::resource('usuarios', UsuarioController::class);
 Route::resource('repartidores', RepartidorController::class);
 Route::resource('pagos', PagoController::class);
+Route::get('/consultar-ia', [PortfolioController::class, 'consultarIA']);
+use App\Http\Controllers\PortfolioController;
+
