@@ -8,7 +8,7 @@
 </div>
 
 <div class="bg-white rounded-lg shadow p-6 max-w-lg">
-   <form action="{{ route('repartidores.update', ['repartidore' => $repartidor->getKey()]) }}" method="POST">
+   <form action="{{ route('repartidores.update', ['repartidor' => $repartidor->getKey()]) }}" method="POST">
         @csrf
         @method('PUT')
 

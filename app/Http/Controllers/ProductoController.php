@@ -8,21 +8,65 @@ use Illuminate\Support\Facades\Http;
 
 class ProductoController extends Controller
 {
-    /**
-     * Muestra el listado de productos.
-     */
     public function index()
     {
         $productos = Producto::paginate(10);
         return view('productos.index', compact('productos'));
     }
 
-    /**
-     * Consulta RAG asistida por Inteligencia Artificial sobre el catálogo.
-     */
+    public function create()
+    {
+        return view('productos.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre'    => 'required|string|max:255',
+            'precio'    => 'required|numeric|min:0',
+            'atributos' => 'nullable|array',
+        ]);
+
+        Producto::create($validated);
+
+        return redirect()->route('productos.index')
+            ->with('success', 'Producto creado exitosamente.');
+    }
+
+    public function show(Producto $producto)
+    {
+        return view('productos.show', compact('producto'));
+    }
+
+    public function edit(Producto $producto)
+    {
+        return view('productos.edit', compact('producto'));
+    }
+
+    public function update(Request $request, Producto $producto)
+    {
+        $validated = $request->validate([
+            'nombre'    => 'required|string|max:255',
+            'precio'    => 'required|numeric|min:0',
+            'atributos' => 'nullable|array',
+        ]);
+
+        $producto->update($validated);
+
+        return redirect()->route('productos.index')
+            ->with('success', 'Producto actualizado exitosamente.');
+    }
+
+    public function destroy(Producto $producto)
+    {
+        $producto->delete();
+
+        return redirect()->route('productos.index')
+            ->with('success', 'Producto eliminado exitosamente.');
+    }
+
     public function consultarIA(Request $request)
     {
-        // Soporta tanto 'message' (desde JS) como 'pregunta' (desde Query String)
         $preguntaUsuario = $request->input('message', $request->input('pregunta', '¿Qué productos tienen guardados?'));
 
         $productos = Producto::all();
@@ -64,7 +108,6 @@ class ProductoController extends Controller
             ],
             'temperature' => 0.3,
         ]);
-
 
         if (!$response->successful()) {
             $errorMessage = $response->json('error.message') ?? 'Error al comunicarse con la API de OpenAI.';
