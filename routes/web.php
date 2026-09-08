@@ -21,6 +21,7 @@ Route::post('/consultar-ia', [ProductSearchController::class, 'search'])->name('
 // Recursos de la aplicación
 Route::resource('productos', ProductoController::class);
 Route::resource('usuarios', UsuarioController::class);
-Route::resource('repartidores', RepartidorController::class);
+Route::resource('repartidores', RepartidorController::class)->parameters(['repartidores' => 'repartidor']);
 Route::resource('pagos', PagoController::class);
+
 

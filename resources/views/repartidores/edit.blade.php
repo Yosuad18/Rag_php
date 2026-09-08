@@ -8,8 +8,9 @@
 </div>
 
 <div class="bg-white rounded-lg shadow p-6 max-w-lg">
-    <form action="{{ route('repartidores.update', $repartidor) }}" method="POST">
-        @csrf @method('PUT')
+   <form action="{{ route('repartidores.update', ['repartidore' => $repartidor->getKey()]) }}" method="POST">
+        @csrf
+        @method('PUT')
 
         <div class="mb-4">
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>

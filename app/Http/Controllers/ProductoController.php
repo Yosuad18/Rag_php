@@ -8,12 +8,23 @@ use Illuminate\Support\Facades\Http;
 
 class ProductoController extends Controller
 {
+    /**
+     * Muestra el listado de productos.
+     */
+    public function index()
+    {
+        $productos = Producto::paginate(10);
+        return view('productos.index', compact('productos'));
+    }
+
+    /**
+     * Consulta RAG asistida por Inteligencia Artificial sobre el catálogo.
+     */
     public function consultarIA(Request $request)
     {
         // Soporta tanto 'message' (desde JS) como 'pregunta' (desde Query String)
         $preguntaUsuario = $request->input('message', $request->input('pregunta', '¿Qué productos tienen guardados?'));
 
-        // 1. Obtener productos de MongoDB Atlas mediante el modelo Producto
         $productos = Producto::all();
 
         if ($productos->isEmpty()) {
@@ -22,7 +33,6 @@ class ProductoController extends Controller
             ]);
         }
 
-        // 2. Construir el contexto para RAG
         $contextoCatalogo = "";
         foreach ($productos as $p) {
             $atributosTexto = is_array($p->atributos)
@@ -34,7 +44,6 @@ class ProductoController extends Controller
 
         $systemPrompt = "Eres un asistente de ventas virtual. Responde las dudas del cliente basándote ÚNICAMENTE en el siguiente catálogo de productos en tiempo real:\n\n" . $contextoCatalogo;
 
-        // 3. Petición a OpenAI (obteniendo datos de .env con fallback seguro)
         $apiKey = env('OPENAI_API_KEY');
         $model = env('OPENAI_CHAT_MODEL', 'gpt-4o-mini');
 
@@ -56,7 +65,7 @@ class ProductoController extends Controller
             'temperature' => 0.3,
         ]);
 
-        // 4. Manejo de errores detallado de la API
+
         if (!$response->successful()) {
             $errorMessage = $response->json('error.message') ?? 'Error al comunicarse con la API de OpenAI.';
             return response()->json([
