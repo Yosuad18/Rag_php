@@ -29,10 +29,27 @@ class ProductoController extends Controller
             'status'      => 'required|string|in:active,inactive',
         ]);
 
+        $textoParaEmbedding = "Producto: {$validated['name']} | Descripcion: " . ($validated['description'] ?? '') . " | Precio: {$validated['price']}";
+
+        $apiKey = env('OPENAI_API_KEY');
+        if ($apiKey) {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type'  => 'application/json',
+            ])->post('https://api.openai.com/v1/embeddings', [
+                'model' => 'text-embedding-3-small',
+                'input' => $textoParaEmbedding,
+            ]);
+
+            if ($response->successful()) {
+                $validated['embedding'] = $response->json('data.0.embedding');
+            }
+        }
+
         Producto::create($validated);
 
         return redirect()->route('productos.index')
-            ->with('success', 'Producto creado exitosamente.');
+            ->with('success', 'Producto creado exitosamente con embeddings.');
     }
 
     public function show(Producto $producto)
@@ -54,6 +71,23 @@ class ProductoController extends Controller
             'stock'       => 'required|integer|min:0',
             'status'      => 'required|string|in:active,inactive',
         ]);
+
+        $textoParaEmbedding = "Producto: {$validated['name']} | Descripcion: " . ($validated['description'] ?? '') . " | Precio: {$validated['price']}";
+
+        $apiKey = env('OPENAI_API_KEY');
+        if ($apiKey) {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type'  => 'application/json',
+            ])->post('https://api.openai.com/v1/embeddings', [
+                'model' => 'text-embedding-3-small',
+                'input' => $textoParaEmbedding,
+            ]);
+
+            if ($response->successful()) {
+                $validated['embedding'] = $response->json('data.0.embedding');
+            }
+        }
 
         $producto->update($validated);
 
