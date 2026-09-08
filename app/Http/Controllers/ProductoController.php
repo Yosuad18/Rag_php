@@ -22,9 +22,11 @@ class ProductoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre'    => 'required|string|max:255',
-            'precio'    => 'required|numeric|min:0',
-            'atributos' => 'nullable|array',
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'status'      => 'required|string|in:active,inactive',
         ]);
 
         Producto::create($validated);
@@ -46,9 +48,11 @@ class ProductoController extends Controller
     public function update(Request $request, Producto $producto)
     {
         $validated = $request->validate([
-            'nombre'    => 'required|string|max:255',
-            'precio'    => 'required|numeric|min:0',
-            'atributos' => 'nullable|array',
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'status'      => 'required|string|in:active,inactive',
         ]);
 
         $producto->update($validated);
@@ -79,11 +83,7 @@ class ProductoController extends Controller
 
         $contextoCatalogo = "";
         foreach ($productos as $p) {
-            $atributosTexto = is_array($p->atributos)
-                ? json_encode($p->atributos, JSON_UNESCAPED_UNICODE)
-                : $p->atributos;
-
-            $contextoCatalogo .= "- Producto: {$p->nombre} | Precio: \${$p->precio} | Detalles: {$atributosTexto}\n";
+            $contextoCatalogo .= "- Producto: {$p->name} | Precio: \${$p->price} | Stock: {$p->stock} | Estado: {$p->status} | Descripción: {$p->description}\n";
         }
 
         $systemPrompt = "Eres un asistente de ventas virtual. Responde las dudas del cliente basándote ÚNICAMENTE en el siguiente catálogo de productos en tiempo real:\n\n" . $contextoCatalogo;
