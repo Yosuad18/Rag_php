@@ -1,0 +1,24 @@
+[build]
+# Exclude dev dependencies from the deployment package
+withoutDev = true
+
+[php]
+# PHP extensions to include
+extensions = [
+    "curl",
+    "dom",
+    "fileinfo",
+    "filter",
+    "hash",
+    "mbstring",
+    "openssl",
+    "pdo",
+    "pdo_mysql",
+    "pdo_sqlite",
+    "session",
+    "tokenizer",
+    "xml",
+    "xmlwriter",
+    "zip",
+    "mongodb",
+]

@@ -1,0 +1,37 @@
+service: interview-api
+
+provider:
+  name: aws
+  runtime: php-82-fpm
+  region: us-east-1
+  memorySize: 1024
+  timeout: 29
+  environment:
+    APP_ENV: production
+    APP_DEBUG: 'false'
+    MONGODB_URI: ${env:MONGODB_URI}
+    FRONTEND_URL: ${env:FRONTEND_URL}
+  vpc:
+    securityGroupIds:
+      - ${env:VPC_SECURITY_GROUP}
+    subnetIds: ${env:VPC_SUBNETS}
+
+package:
+  patterns:
+    - '!tests/'
+    - '!terraform/'
+    - '!node_modules/'
+    - '!.git/'
+    - '!.env'
+    - '!.env.*'
+
+functions:
+  api:
+    handler: handler.handler
+    events:
+      - httpApi:
+          path: /api/{proxy+}
+          method: '*'
+      - httpApi:
+          path: /api
+          method: '*'
