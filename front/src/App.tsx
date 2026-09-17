@@ -3,10 +3,12 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import CandidateList from './pages/candidates/CandidateList'
 import CandidateForm from './pages/candidates/CandidateForm'
+import CandidateQuestions from './pages/candidates/CandidateQuestions'
 import InterviewList from './pages/interviews/InterviewList'
 import InterviewForm from './pages/interviews/InterviewForm'
 import InterviewerList from './pages/interviewers/InterviewerList'
 import InterviewerForm from './pages/interviewers/InterviewerForm'
+import TopicAnalytics from './pages/analytics/TopicAnalytics'
 
 function App() {
   return (
@@ -16,12 +18,14 @@ function App() {
         <Route path="/candidates" element={<CandidateList />} />
         <Route path="/candidates/new" element={<CandidateForm />} />
         <Route path="/candidates/:id/edit" element={<CandidateForm />} />
+        <Route path="/candidates/:id/questions" element={<CandidateQuestions />} />
         <Route path="/interviews" element={<InterviewList />} />
         <Route path="/interviews/new" element={<InterviewForm />} />
         <Route path="/interviews/:id/edit" element={<InterviewForm />} />
         <Route path="/interviewers" element={<InterviewerList />} />
         <Route path="/interviewers/new" element={<InterviewerForm />} />
         <Route path="/interviewers/:id/edit" element={<InterviewerForm />} />
+        <Route path="/analytics" element={<TopicAnalytics />} />
       </Routes>
     </Layout>
   )

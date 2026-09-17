@@ -1,6 +1,6 @@
 import { useState, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LayoutDashboard, Users, Calendar, UserCheck } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Users, Calendar, UserCheck, BarChart3 } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Candidates', path: '/candidates', icon: Users },
   { label: 'Interviews', path: '/interviews', icon: Calendar },
   { label: 'Interviewers', path: '/interviewers', icon: UserCheck },
+  { label: 'Analytics', path: '/analytics', icon: BarChart3 },
 ];
 
 export default function Layout({ children }: LayoutProps) {

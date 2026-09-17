@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\CandidateController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\InterviewController;
 use App\Http\Controllers\Api\InterviewerController;
+use App\Http\Controllers\Api\QuestionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -30,4 +31,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
+    // Questions (DynamoDB)
+    Route::get('/questions', [QuestionController::class, 'index']);
+    Route::post('/questions', [QuestionController::class, 'store']);
+    Route::get('/questions/analytics/topics', [QuestionController::class, 'analyticsTopics']);
+    Route::get('/questions/analytics/timeline', [QuestionController::class, 'analyticsTimeline']);
+    Route::get('/questions/{id}', [QuestionController::class, 'show']);
+    Route::put('/questions/{id}/status', [QuestionController::class, 'updateStatus']);
+    Route::delete('/questions/{id}', [QuestionController::class, 'destroy']);
+
+    // Candidate-specific questions
+    Route::get('/candidates/{candidateId}/questions', [QuestionController::class, 'byCandidate']);
 });

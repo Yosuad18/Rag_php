@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, MessageSquare } from 'lucide-react';
 import DataTable from '../../components/DataTable';
 import StatusBadge from '../../components/StatusBadge';
 import Modal from '../../components/Modal';
@@ -50,6 +50,9 @@ export default function CandidateList() {
       header: '',
       render: (c: Candidate) => (
         <div className="text-right text-sm space-x-2">
+          <Link to={`/candidates/${c.id}/questions`} className="text-blue-600 hover:text-blue-900" title="View Questions">
+            <MessageSquare className="w-4 h-4 inline" />
+          </Link>
           <Link to={`/candidates/${c.id}/edit`} className="text-yellow-600 hover:text-yellow-900"><Pencil className="w-4 h-4 inline" /></Link>
           <button onClick={() => setDeleteId(c.id!)} className="text-red-600 hover:text-red-900"><Trash2 className="w-4 h-4 inline" /></button>
         </div>

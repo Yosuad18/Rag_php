@@ -44,3 +44,31 @@ resource "aws_iam_role_policy" "lambda_logs" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "lambda_dynamodb" {
+  name = "${var.app_name}-lambda-dynamodb-${var.environment}"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:BatchGetItem"
+        ]
+        Resource = [
+          aws_dynamodb_table.candidate_questions.arn,
+          "${aws_dynamodb_table.candidate_questions.arn}/index/*"
+        ]
+      }
+    ]
+  })
+}
