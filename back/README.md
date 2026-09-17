@@ -57,3 +57,63 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+Project Structure
+mongo_lara/
+├── back/                          # Laravel 12 API (Lambda-ready)
+│   ├── app/
+│   │   ├── Http/Controllers/Api/  # 4 controllers
+│   │   ├── Http/Requests/         # 6 form requests
+│   │   ├── Http/Resources/        # 3 API resources
+│   │   └── Models/                # 3 MongoDB models
+│   ├── config/cors.php            # CORS for CloudFront + localhost
+│   ├── routes/api.php             # 16 API routes
+│   ├── handler.php                # Lambda entry point
+│   ├── serverless.yml             # Bref Lambda config
+│   ├── bref.toml                  # PHP extensions
+│   └── terraform/                 # 8 IaC files
+│       ├── main.tf, variables.tf, outputs.tf
+│       ├── iam.tf, lambda.tf, api_gateway.tf
+│       ├── s3.tf, cloudfront.tf
+│
+├── front/                         # React + TypeScript + Tailwind
+│   ├── src/
+│   │   ├── api/                   # 5 API modules (axios)
+│   │   ├── components/            # 5 reusable components
+│   │   └── pages/                 # 7 pages (Dashboard + CRUD)
+│   └── dist/                      # Production build (verified)
+Backend API (16 routes)
+Endpoint	Methods
+/api/candidates	GET, POST
+/api/candidates/{id}	GET, PUT, DELETE
+/api/interviews	GET, POST
+/api/interviews/{id}	GET, PUT, DELETE
+/api/interviewers	GET, POST
+/api/interviewers/{id}	GET, PUT, DELETE
+/api/dashboard/stats	GET
+To Run Locally
+# Backend
+cd back
+php artisan serve          # http://localhost:8000
+
+# Frontend (separate terminal)
+cd front
+npm run dev                # http://localhost:5173 (proxies /api to :8000)
+To Deploy to AWS
+# 1. Build Lambda package
+cd back && composer install --no-dev --optimize-autoloader
+zip -r deploy.zip . -x "tests/*" "terraform/*" ".git/*"
+
+# 2. Deploy infrastructure
+cd terraform
+terraform init
+terraform apply -var="frontend_url=d1xxxx.cloudfront.net" \
+                 -var="mongodb_uri=mongodb+srv://..." \
+                 -var="vpc_id=vpc-xxx" \
+                 -var='subnet_ids=["subnet-xxx"]' \
+                 -var="security_group_id=sg-xxx"
+
+# 3. Deploy frontend to S3
+cd ../../front
+npm run build
+aws s3 sync dist/ s3://$(terraform output -raw s3_bucket_name) --delete
